@@ -1,5 +1,4 @@
-
-networks:
+﻿networks:
   cdc-network:
     driver: bridge
 
@@ -8,7 +7,7 @@ volumes:
 
 services:
 
-  # ─── ZOOKEEPER ───────────────────────────────────────────────
+  # zookeeper
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -25,7 +24,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ─── KAFKA ───────────────────────────────────────────────────
+  # kafka
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
@@ -50,7 +49,7 @@ services:
       timeout: 10s
       retries: 10
 
-  # ─── DEBEZIUM ────────────────────────────────────────────────
+  # debezium
   debezium:
     image: debezium/connect:2.4
     container_name: debezium
@@ -61,6 +60,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+    volumes:
+      - ./debezium/debezium-secrets.properties:/kafka/external-secrets/debezium-secrets.properties
     environment:
       BOOTSTRAP_SERVERS: kafka:29092
       GROUP_ID: debezium-group
@@ -70,13 +71,15 @@ services:
       CONFIG_STORAGE_REPLICATION_FACTOR: 1
       OFFSET_STORAGE_REPLICATION_FACTOR: 1
       STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_CONFIG_PROVIDERS: file
+      CONNECT_CONFIG_PROVIDERS_FILE_CLASS: org.apache.kafka.common.config.provider.FileConfigProvider
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8083/connectors"]
       interval: 15s
       timeout: 10s
       retries: 10
 
-  # ─── AIRFLOW ─────────────────────────────────────────────────
+  # airflow
   airflow:
     image: apache/airflow:2.8.1
     container_name: airflow
@@ -100,7 +103,7 @@ services:
       - -c
       - >-
         airflow db migrate &&
-        airflow users create --username admin --password admin --firstname Phil --lastname Dinh --role Admin --email phil@example.com ;
+        airflow users create --username ${AIRFLOW_ADMIN_USERNAME} --password ${AIRFLOW_ADMIN_PASSWORD} --firstname ${AIRFLOW_ADMIN_FIRSTNAME} --lastname ${AIRFLOW_ADMIN_LASTNAME} --role Admin --email ${AIRFLOW_ADMIN_EMAIL} ;
         airflow webserver & airflow scheduler
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]

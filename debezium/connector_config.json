@@ -1,0 +1,43 @@
+{
+  "name": "cdc-subscription-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+
+    "database.hostname": "host.docker.internal",
+    "database.port": "5432",
+    "database.user": "${file:/kafka/external-secrets/debezium-secrets.properties:database.user}",
+    "database.password": "${file:/kafka/external-secrets/debezium-secrets.properties:database.password}",
+    "database.dbname": "oltp_db",
+    "database.server.name": "cdc_subscription",
+
+    "plugin.name": "pgoutput",
+
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+
+    "table.include.list": "public.users,public.plans,public.subscriptions,public.payments,public.events",
+
+    "topic.prefix": "cdc_subscription",
+
+    "slot.name": "debezium_slot",
+    "publication.name": "debezium_publication",
+
+    "decimal.handling.mode": "string",
+    "timestamp.mode": "adaptive_time_microseconds",
+
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.add.fields": "op,table,ts_ms",
+    "transforms.unwrap.add.fields.prefix": "",
+    "transforms.unwrap.delete.handling.mode": "rewrite",
+
+    "heartbeat.interval.ms": "10000",
+
+    "errors.tolerance": "all",
+    "errors.log.enable": "true",
+    "errors.log.include.messages": "true"
+  }
+}
