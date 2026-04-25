@@ -1,6 +1,4 @@
 
-
-
 networks:
   cdc-network:
     driver: bridge
