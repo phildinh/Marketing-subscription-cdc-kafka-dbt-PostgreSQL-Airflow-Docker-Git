@@ -13,6 +13,11 @@
 
     "plugin.name": "pgoutput",
 
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+
     "table.include.list": "public.users,public.plans,public.subscriptions,public.payments,public.events",
 
     "topic.prefix": "cdc_subscription",
@@ -26,6 +31,7 @@
     "transforms": "unwrap",
     "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
     "transforms.unwrap.add.fields": "op,table,ts_ms",
+    "transforms.unwrap.add.fields.prefix": "",
     "transforms.unwrap.delete.handling.mode": "rewrite",
 
     "heartbeat.interval.ms": "10000",

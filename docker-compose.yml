@@ -1,5 +1,4 @@
-
-networks:
+﻿networks:
   cdc-network:
     driver: bridge
 
@@ -8,7 +7,7 @@ volumes:
 
 services:
 
-  # ─── ZOOKEEPER ───────────────────────────────────────────────
+  # zookeeper
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -25,7 +24,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ─── KAFKA ───────────────────────────────────────────────────
+  # kafka
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
@@ -50,7 +49,7 @@ services:
       timeout: 10s
       retries: 10
 
-  # ─── DEBEZIUM ────────────────────────────────────────────────
+  # debezium
   debezium:
     image: debezium/connect:2.4
     container_name: debezium
@@ -80,7 +79,7 @@ services:
       timeout: 10s
       retries: 10
 
-  # ─── AIRFLOW ─────────────────────────────────────────────────
+  # airflow
   airflow:
     image: apache/airflow:2.8.1
     container_name: airflow
