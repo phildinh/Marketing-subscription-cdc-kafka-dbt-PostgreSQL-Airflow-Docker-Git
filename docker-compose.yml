@@ -61,6 +61,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+    volumes:
+      - ./debezium/debezium-secrets.properties:/kafka/external-secrets/debezium-secrets.properties
     environment:
       BOOTSTRAP_SERVERS: kafka:29092
       GROUP_ID: debezium-group
@@ -70,6 +72,8 @@ services:
       CONFIG_STORAGE_REPLICATION_FACTOR: 1
       OFFSET_STORAGE_REPLICATION_FACTOR: 1
       STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_CONFIG_PROVIDERS: file
+      CONNECT_CONFIG_PROVIDERS_FILE_CLASS: org.apache.kafka.common.config.provider.FileConfigProvider
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8083/connectors"]
       interval: 15s
@@ -100,7 +104,7 @@ services:
       - -c
       - >-
         airflow db migrate &&
-        airflow users create --username admin --password admin --firstname Phil --lastname Dinh --role Admin --email phil@example.com ;
+        airflow users create --username ${AIRFLOW_ADMIN_USERNAME} --password ${AIRFLOW_ADMIN_PASSWORD} --firstname ${AIRFLOW_ADMIN_FIRSTNAME} --lastname ${AIRFLOW_ADMIN_LASTNAME} --role Admin --email ${AIRFLOW_ADMIN_EMAIL} ;
         airflow webserver & airflow scheduler
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
