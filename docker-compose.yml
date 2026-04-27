@@ -99,9 +99,10 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@host.docker.internal:5432/${AIRFLOW_DB_NAME}
       AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+      ANALYTICAL_DB_HOST: host.docker.internal
       ANALYTICAL_DB_PASSWORD: ${ANALYTICAL_DB_PASSWORD}
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
-      _PIP_ADDITIONAL_REQUIREMENTS: "dbt-postgres"
+      _PIP_ADDITIONAL_REQUIREMENTS: "dbt-postgres==1.8.2"
     command:
       - bash
       - -c
@@ -114,3 +115,5 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+

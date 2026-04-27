@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "cdc-subscription-connector",
   "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
@@ -6,8 +6,8 @@
 
     "database.hostname": "host.docker.internal",
     "database.port": "5432",
-    "database.user": "${file:/kafka/external-secrets/debezium-secrets.properties:database.user}",
-    "database.password": "${file:/kafka/external-secrets/debezium-secrets.properties:database.password}",
+    "database.user": "postgres",
+    "database.password": "2011",
     "database.dbname": "oltp_db",
     "database.server.name": "cdc_subscription",
 

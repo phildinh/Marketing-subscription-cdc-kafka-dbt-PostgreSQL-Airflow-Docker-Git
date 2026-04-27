@@ -1,4 +1,4 @@
-version: 2
+﻿version: 2
 
 models:
   - name: stg_users
@@ -14,8 +14,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['c', 'u', 'r']
+              values: ['c', 'u', 'r']
 
   - name: stg_plans
     description: "Cleaned plan CDC events"
@@ -29,8 +28,7 @@ models:
       - name: billing_cycle
         tests:
           - accepted_values:
-              arguments:
-                values: ['monthly', 'annual']
+              values: ['monthly', 'annual']
 
   - name: stg_subscriptions
     description: "Cleaned subscription CDC events"
@@ -44,8 +42,7 @@ models:
       - name: status
         tests:
           - accepted_values:
-              arguments:
-                values: ['active', 'cancelled', 'paused', 'expired']
+              values: ['active', 'cancelled', 'paused', 'expired']
 
   - name: stg_payments
     description: "Cleaned payment CDC events"
@@ -59,8 +56,7 @@ models:
       - name: status
         tests:
           - accepted_values:
-              arguments:
-                values: ['success', 'failed', 'refunded', 'pending']
+              values: ['success', 'failed', 'refunded', 'pending']
 
   - name: stg_events
     description: "Cleaned clickstream CDC events"
