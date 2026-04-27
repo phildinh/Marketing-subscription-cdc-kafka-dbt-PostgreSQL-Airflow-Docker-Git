@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: dim_users
+    description: "Latest state per user — deduplicated from stg_users"
+    columns:
+      - name: user_id
+        tests: [not_null, unique]
+      - name: email
+        tests: [not_null, unique]
+
+  - name: dim_plans
+    description: "Latest state per plan — deduplicated from stg_plans"
+    columns:
+      - name: plan_id
+        tests: [not_null, unique]
+
+  - name: dim_dates
+    description: "Calendar dimension — generated date spine 2024-2030"
+    columns:
+      - name: date_day
+        tests: [not_null, unique]
+      - name: date_key
+        tests: [not_null, unique]
+
+  - name: fct_subscriptions
+    description: "One row per subscription event with MRR and churn flags"
+    columns:
+      - name: subscription_id
+        tests: [not_null]
+      - name: mrr
+        tests: [not_null]
+
+  - name: fct_payments
+    description: "One row per payment with revenue flags"
+    columns:
+      - name: payment_id
+        tests: [not_null, unique]
+      - name: amount
+        tests: [not_null]

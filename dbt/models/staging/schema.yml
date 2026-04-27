@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: stg_users
+    description: "Cleaned user CDC events from raw.cdc_events"
+    columns:
+      - name: cdc_id
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: email
+        tests: [not_null]
+      - name: cdc_op
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['c', 'u', 'r']
+
+  - name: stg_plans
+    description: "Cleaned plan CDC events"
+    columns:
+      - name: cdc_id
+        tests: [not_null]
+      - name: plan_id
+        tests: [not_null]
+      - name: price
+        tests: [not_null]
+      - name: billing_cycle
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['monthly', 'annual']
+
+  - name: stg_subscriptions
+    description: "Cleaned subscription CDC events"
+    columns:
+      - name: cdc_id
+        tests: [not_null]
+      - name: subscription_id
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['active', 'cancelled', 'paused', 'expired']
+
+  - name: stg_payments
+    description: "Cleaned payment CDC events"
+    columns:
+      - name: cdc_id
+        tests: [not_null]
+      - name: payment_id
+        tests: [not_null]
+      - name: amount
+        tests: [not_null]
+      - name: status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['success', 'failed', 'refunded', 'pending']
+
+  - name: stg_events
+    description: "Cleaned clickstream CDC events"
+    columns:
+      - name: cdc_id
+        tests: [not_null]
+      - name: event_id
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: event_type
+        tests: [not_null]
