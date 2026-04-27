@@ -1,0 +1,140 @@
+# =============================================================
+# dbt_ci.yml
+# Runs dbt tests on every push and pull request
+# Fails the workflow if any dbt test fails
+# =============================================================
+
+name: dbt CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  dbt-test:
+    name: Run dbt tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: analytical_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      ANALYTICAL_DB_HOST: localhost
+      ANALYTICAL_DB_PORT: 5432
+      ANALYTICAL_DB_NAME: analytical_db
+      ANALYTICAL_DB_USER: postgres
+      ANALYTICAL_DB_PASSWORD: postgres
+
+    steps:
+      # -----------------------------------------------------------
+      # Step 1 — Checkout the code
+      # -----------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------
+      # Step 2 — Set up Python
+      # -----------------------------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      # -----------------------------------------------------------
+      # Step 3 — Install dbt
+      # -----------------------------------------------------------
+      - name: Install dbt
+        run: pip install dbt-postgres==1.8.2
+
+      # -----------------------------------------------------------
+      # Step 4 — Create analytical_db schemas
+      # dbt needs raw, staging, marts and snapshots schemas to exist
+      # -----------------------------------------------------------
+      - name: Create schemas
+        run: |
+          psql postgresql://postgres:postgres@localhost:5432/analytical_db \
+            -c "CREATE SCHEMA IF NOT EXISTS raw;" \
+            -c "CREATE SCHEMA IF NOT EXISTS staging;" \
+            -c "CREATE SCHEMA IF NOT EXISTS marts;" \
+            -c "CREATE SCHEMA IF NOT EXISTS snapshots;"
+
+      # -----------------------------------------------------------
+      # Step 5 — Create raw.cdc_events table
+      # Staging models source from this table
+      # -----------------------------------------------------------
+      - name: Create raw.cdc_events
+        run: |
+          psql postgresql://postgres:postgres@localhost:5432/analytical_db -c "
+            CREATE TABLE IF NOT EXISTS raw.cdc_events (
+              id              SERIAL PRIMARY KEY,
+              topic           VARCHAR(255)  NOT NULL,
+              partition       INT           NOT NULL,
+              offset_value    BIGINT        NOT NULL,
+              op              VARCHAR(10)   NOT NULL,
+              source_table    VARCHAR(100)  NOT NULL,
+              before          JSONB,
+              after           JSONB,
+              ts_ms           BIGINT        NOT NULL,
+              consumed_at     TIMESTAMP     NOT NULL DEFAULT NOW()
+            );
+          "
+
+      # -----------------------------------------------------------
+      # Step 6 — Seed test data into raw.cdc_events
+      # Gives dbt models something to transform during CI
+      # -----------------------------------------------------------
+      - name: Seed test data
+        run: |
+          psql postgresql://postgres:postgres@localhost:5432/analytical_db -c "
+            INSERT INTO raw.cdc_events
+              (topic, partition, offset_value, op, source_table, before, after, ts_ms, consumed_at)
+            VALUES
+              ('cdc_subscription.public.users', 0, 1, 'c', 'users', NULL,
+               '{\"user_id\": 1, \"email\": \"phil@test.com\", \"name\": \"Phil Dinh\", \"plan_id\": 1, \"created_at\": 1767225600000000}',
+               1745580000000, NOW()),
+              ('cdc_subscription.public.plans', 0, 2, 'c', 'plans', NULL,
+               '{\"plan_id\": 1, \"name\": \"starter\", \"price\": \"9.99\", \"billing_cycle\": \"monthly\", \"created_at\": 1767225600000000}',
+               1745580000001, NOW()),
+              ('cdc_subscription.public.subscriptions', 0, 3, 'c', 'subscriptions', NULL,
+               '{\"subscription_id\": 1, \"user_id\": 1, \"plan_id\": 1, \"status\": \"active\", \"started_at\": 1767225600000000, \"ended_at\": null}',
+               1745580000002, NOW()),
+              ('cdc_subscription.public.payments', 0, 4, 'c', 'payments', NULL,
+               '{\"payment_id\": 1, \"subscription_id\": 1, \"amount\": \"9.99\", \"status\": \"success\", \"created_at\": 1767225600000000}',
+               1745580000003, NOW()),
+              ('cdc_subscription.public.events', 0, 5, 'c', 'events', NULL,
+               '{\"event_id\": 1, \"user_id\": 1, \"event_type\": \"page_view\", \"properties\": {\"page\": \"pricing\", \"referrer\": \"google\"}, \"created_at\": 1767225600000000}',
+               1745580000004, NOW());
+          "
+
+      # -----------------------------------------------------------
+      # Step 7 — Run dbt
+      # -----------------------------------------------------------
+      - name: dbt run
+        run: |
+          cd dbt
+          dbt run
+
+      # -----------------------------------------------------------
+      # Step 8 — Run dbt tests
+      # Fails the workflow if any test fails
+      # -----------------------------------------------------------
+      - name: dbt test
+        run: |
+          cd dbt
+          dbt test
