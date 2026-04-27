@@ -107,23 +107,24 @@ def create_user(conn, plan_ids):
         plan_id=plan_id,
         created_at=datetime.now()
     )
-
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            INSERT INTO users (email, name, plan_id, created_at)
-            VALUES (%s, %s, %s, %s)
-            RETURNING user_id
-            """,
-            (user.email, user.name, user.plan_id, user.created_at)
-        )
-        user_id = cur.fetchone()[0]
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO users (email, name, plan_id, created_at)
+                VALUES (%s, %s, %s, %s)
+                RETURNING user_id
+                """,
+                (user.email, user.name, user.plan_id, user.created_at)
+            )
+            user_id = cur.fetchone()[0]
         conn.commit()
-
-    logger.info(f"Created user {user_id} — {user.email}")
+    except Exception:
+        conn.rollback()
+        logger.warning(f"Skipped duplicate user {user.email}")
+        return None, None
+    logger.info(f"Created user {user_id} - {user.email}")
     return user_id, plan_id
-
-
 # =============================================================
 # Create a subscription for a user
 # =============================================================
@@ -305,6 +306,8 @@ def run(batch_size=10, sleep_seconds=5):
         # 1. Create new users and their subscriptions
         for _ in range(batch_size):
             user_id, plan_id = create_user(conn, plan_ids)
+            if user_id is None:
+                continue
             subscription_id = create_subscription(conn, user_id, plan_id)
 
             # Get the price for this plan

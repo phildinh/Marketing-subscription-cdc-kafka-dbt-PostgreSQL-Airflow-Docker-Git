@@ -1,4 +1,4 @@
-# =============================================================
+﻿# =============================================================
 # consumer.py
 # Reads CDC events from Kafka topics
 # Parses JSON payload
@@ -43,7 +43,7 @@ TOPICS = [
 
 
 # =============================================================
-# Database connection â€” analytical_db
+# Database connection Ã¢â‚¬â€ analytical_db
 # =============================================================
 def get_analytical_connection():
     return psycopg2.connect(
@@ -82,9 +82,9 @@ def parse_message(msg):
         ts_ms = payload.pop("__ts_ms", None) or payload.pop("ts_ms", None)
 
         # Whatever remains is the actual row data
-        # On an INSERT â€” this is the full new row
-        # On an UPDATE â€” this is the new state of the row
-        # On a DELETE  â€” this will be mostly empty after unwrap
+        # On an INSERT Ã¢â‚¬â€ this is the full new row
+        # On an UPDATE Ã¢â‚¬â€ this is the new state of the row
+        # On a DELETE  Ã¢â‚¬â€ this will be mostly empty after unwrap
         after = payload if op != "d" else None
         before = None  # unwrap transform gives us current state only
 
@@ -170,13 +170,13 @@ def run():
     # ----------------------------------------------------------
     # Create Kafka consumer
     #
-    # enable_auto_commit=False â€” we commit manually after writing
+    # enable_auto_commit=False Ã¢â‚¬â€ we commit manually after writing
     # to Postgres so we never lose an event if the write fails
     #
-    # auto_offset_reset="earliest" â€” if this consumer has never
+    # auto_offset_reset="earliest" Ã¢â‚¬â€ if this consumer has never
     # run before, start from the very first event in the topic
     #
-    # group_id â€” Kafka uses this to track which offsets this
+    # group_id Ã¢â‚¬â€ Kafka uses this to track which offsets this
     # consumer group has processed. Same group_id = resume
     # from last committed offset on restart
     # ----------------------------------------------------------
@@ -204,7 +204,7 @@ def run():
             records = consumer.poll(timeout_ms=1000)
 
             if not records:
-                logger.debug("No new messages â€” waiting")
+                logger.debug("No new messages Ã¢â‚¬â€ waiting")
                 continue
 
             # records is a dict: {TopicPartition: [messages]}
@@ -229,7 +229,7 @@ def run():
 
             # Only commit offsets AFTER successful write to Postgres
             # If write_to_analytical raises an exception we never
-            # reach this line â€” Kafka replays from last committed offset
+            # reach this line Ã¢â‚¬â€ Kafka replays from last committed offset
             consumer.commit()
             logger.info(f"Committed offsets for {len(parsed_events)} events")
 

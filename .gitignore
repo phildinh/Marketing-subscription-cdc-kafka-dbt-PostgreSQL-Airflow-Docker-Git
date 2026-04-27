@@ -1,7 +1,6 @@
 # Environment
 .env
-.env.*
-!.env.example
+debezium/debezium-secrets.properties
 
 # Python
 .venv/
@@ -13,7 +12,6 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-.venv/
 venv/
 env/
 
