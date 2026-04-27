@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: "Raw CDC events landing table — written by Kafka consumer"
+    tables:
+      - name: cdc_events
+        description: "Every CDC event from Debezium across all 5 OLTP tables"
+        columns:
+          - name: id
+            description: "Surrogate key — auto increment"
+          - name: topic
+            description: "Kafka topic the event came from"
+          - name: partition
+            description: "Kafka partition"
+          - name: offset_value
+            description: "Kafka offset — used for idempotency"
+          - name: op
+            description: "CDC operation — c=insert, u=update, d=delete"
+          - name: source_table
+            description: "OLTP table that changed"
+          - name: before
+            description: "Row state before the change — NULL on inserts"
+          - name: after
+            description: "Row state after the change — NULL on deletes"
+          - name: ts_ms
+            description: "Debezium timestamp in milliseconds"
+          - name: consumed_at
+            description: "When the Kafka consumer wrote this row"

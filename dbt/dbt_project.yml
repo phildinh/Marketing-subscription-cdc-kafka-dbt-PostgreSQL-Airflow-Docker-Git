@@ -1,0 +1,22 @@
+name: cdc_subscription
+version: "1.0.0"
+config-version: 2
+
+profile: cdc_subscription
+
+model-paths: ["models"]
+snapshot-paths: ["snapshots"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+analysis-paths: ["analysis"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  cdc_subscription:
+    staging:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
