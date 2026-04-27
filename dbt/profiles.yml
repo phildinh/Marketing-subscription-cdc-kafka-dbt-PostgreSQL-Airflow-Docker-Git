@@ -1,9 +1,9 @@
-cdc_subscription:
+﻿cdc_subscription:
   target: dev
   outputs:
     dev:
       type: postgres
-      host: localhost
+      host: "{{ env_var('ANALYTICAL_DB_HOST', 'localhost') }}"
       port: 5432
       dbname: analytical_db
       user: postgres

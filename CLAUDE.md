@@ -1,11 +1,11 @@
-# CDC Subscription Pipeline — Claude Reference
+﻿# CDC Subscription Pipeline â€” Claude Reference
 
 ## Project Purpose
 Local CDC streaming pipeline for learning Debezium and Kafka.
 Deliberately break the pipeline in 12 scenarios, fix each one, document in README.
 
 ## Stack
-PostgreSQL (local, port 5432) → Debezium → Kafka → PostgreSQL analytical → dbt → Power BI
+PostgreSQL (local, port 5432) â†’ Debezium â†’ Kafka â†’ PostgreSQL analytical â†’ dbt â†’ Power BI
 Orchestrated with Airflow + Docker. Slack alerts on pipeline events.
 
 ## Key Ports
@@ -25,35 +25,35 @@ Orchestrated with Airflow + Docker. Slack alerts on pipeline events.
 | airflow_db     | Airflow metadata |
 
 ## Folder Structure
-- sql/            → OLTP and analytical schema scripts
-- data_generator/ → Synthetic data generation
-- kafka_consumer/ → Reads Kafka, writes to analytical Postgres
-- debezium/       → Connector config
-- dbt/            → Staging and mart models
-- airflow/dags/   → Pipeline orchestration
-- slack/          → Webhook alerts
-- utils/          → Shared helpers
-- tests/          → Unit and integration tests
+- sql/            â†’ OLTP and analytical schema scripts
+- data_generator/ â†’ Synthetic data generation
+- kafka_consumer/ â†’ Reads Kafka, writes to analytical Postgres
+- debezium/       â†’ Connector config
+- dbt/            â†’ Staging and mart models
+- airflow/dags/   â†’ Pipeline orchestration
+- slack/          â†’ Webhook alerts
+- utils/          â†’ Shared helpers
+- tests/          â†’ Unit and integration tests
 
 ## Domain
 Subscription and customer lifecycle.
 Tables: users, plans, subscriptions, payments, events.
 
 ## dbt Layers
-- staging   → clean, rename, cast only. No joins.
-- marts     → facts and dimensions. Joins happen here only.
-- snapshots → SCD Type 2 for dim_users and dim_plans.
+- staging   â†’ clean, rename, cast only. No joins.
+- marts     â†’ facts and dimensions. Joins happen here only.
+- snapshots â†’ SCD Type 2 for dim_users and dim_plans.
 
 ## Conventions
-- Branch strategy: feature branches off develop, develop merges to main
+- Branch strategy: feature branches off main directly (develop branch abandoned)
 - Current branch pattern: phase/0X-description
 - Always explain business problem before technical solution
 - No walls of unstructured text
 
-## What Phil Knows — Never Re-explain
+## What Phil Knows â€” Never Re-explain
 - Star schema, SCD Type 2, dbt, Airflow, Docker, GitHub Actions, pandas, PostgreSQL
 
-## What Phil Is Learning — Always Explain Carefully
+## What Phil Is Learning â€” Always Explain Carefully
 - Debezium connector config and WAL logical replication
 - Kafka topics, consumers, offset management, before/after/op event structure
 - Streaming vs batch differences
@@ -100,3 +100,4 @@ curl -X POST http://localhost:8083/connectors \
   -H "Content-Type: application/json" \
   -d @debezium/connector_config.json
 ```
+

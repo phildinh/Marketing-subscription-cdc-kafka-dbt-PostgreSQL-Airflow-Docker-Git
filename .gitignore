@@ -1,4 +1,4 @@
-# Environment
+﻿# Environment
 .env
 debezium/debezium-secrets.properties
 
@@ -39,3 +39,5 @@ Thumbs.db
 
 # Logs
 *.log
+debezium/connector_config.json
+
