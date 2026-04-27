@@ -7,7 +7,11 @@
 
 with stg_pay as (
 
-    select * from {{ ref('stg_payments') }}
+    -- Deduplicate to one row per payment_id — latest CDC event wins
+    select distinct on (payment_id)
+        *
+    from {{ ref('stg_payments') }}
+    order by payment_id, cdc_ts_ms desc
 
 ),
 
